@@ -35,6 +35,11 @@
 
 - **Firebase Realtime Database** 사용하기
 
+  - 실시간으로 변경
+
+- firestore database
+  - 쿼리 느낌의 좀더 업그레이된 기능을 가진 실시간 데이터 베이스;
+
 - yuyakaido/CardStackView 사용하기
 
 
