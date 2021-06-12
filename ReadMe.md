@@ -52,3 +52,10 @@ Firebase Realtime Database 를 이용하여 기록을 저장하고, 불러올 �
 
 Github에서 Opensource Library 를 찾아 사용할 수 있음.
 
+
+## firebase
+
+firebase 에서 authentication 시작하기 눌러 사용을 시작;
+
+realtime database 도 시작;
+
