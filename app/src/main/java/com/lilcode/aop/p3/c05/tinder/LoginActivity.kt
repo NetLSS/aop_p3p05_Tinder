@@ -16,6 +16,7 @@ import com.facebook.login.widget.LoginButton
 import com.google.firebase.auth.FacebookAuthProvider
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.ktx.auth
+import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 
 class LoginActivity : AppCompatActivity() {
@@ -48,36 +49,42 @@ class LoginActivity : AppCompatActivity() {
         val facebookLoginButton = findViewById<LoginButton>(R.id.facebookLoginButton)
 
         // 가져올 정보;
-        facebookLoginButton.setPermissions("email","public_profile")
-        facebookLoginButton.registerCallback(callbackManager, object: FacebookCallback<LoginResult>{
-            override fun onSuccess(result: LoginResult) {
-                // 로그인 성공;
+        facebookLoginButton.setPermissions("email", "public_profile")
+        facebookLoginButton.registerCallback(
+            callbackManager,
+            object : FacebookCallback<LoginResult> {
+                override fun onSuccess(result: LoginResult) {
+                    // 로그인 성공;
 
-                // 로그인 결과에서 엑세스 토큰을 가져옴
-                val credential = FacebookAuthProvider.getCredential(result.accessToken.token)
+                    // 로그인 결과에서 엑세스 토큰을 가져옴
+                    val credential = FacebookAuthProvider.getCredential(result.accessToken.token)
 
-                // 페이스북 로그인 엑세스 토큰을 넘겨주어 로그
-                auth.signInWithCredential(credential)
-                    .addOnCompleteListener(this@LoginActivity) { task ->
-                        if(task.isSuccessful){
-                            finish()
-                        }else{
-                            Toast.makeText(this@LoginActivity, "페이스북 로그인이 실패했습니다.", Toast.LENGTH_SHORT)
-                                .show()
+                    // 페이스북 로그인 엑세스 토큰을 넘겨주어 로그
+                    auth.signInWithCredential(credential)
+                        .addOnCompleteListener(this@LoginActivity) { task ->
+                            if (task.isSuccessful) {
+                                handleSuccessLogin() //finish()
+                            } else {
+                                Toast.makeText(
+                                    this@LoginActivity,
+                                    "페이스북 로그인이 실패했습니다.",
+                                    Toast.LENGTH_SHORT
+                                )
+                                    .show()
+                            }
                         }
-                    }
-            }
+                }
 
-            override fun onCancel() {
-               // 로그인 취소;
-            }
+                override fun onCancel() {
+                    // 로그인 취소;
+                }
 
-            override fun onError(error: FacebookException?) {
-               Toast.makeText(this@LoginActivity, "페이스북 로그인이 실패했습니다.", Toast.LENGTH_SHORT)
-                   .show()
-            }
+                override fun onError(error: FacebookException?) {
+                    Toast.makeText(this@LoginActivity, "페이스북 로그인이 실패했습니다.", Toast.LENGTH_SHORT)
+                        .show()
+                }
 
-        })
+            })
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -116,11 +123,15 @@ class LoginActivity : AppCompatActivity() {
 
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
-                    if (task.isSuccessful){ // 로그인 성공;
+                    if (task.isSuccessful) { // 로그인 성공;
 
-                        finish() // 엑티비티 종료;
-                    } else{
-                        Toast.makeText(this, "로그인에 실패했습니다. 이메일 또는 비밀번호를 확인해주세요.", Toast.LENGTH_SHORT)
+                        handleSuccessLogin() //finish() // 엑티비티 종료;
+                    } else {
+                        Toast.makeText(
+                            this,
+                            "로그인에 실패했습니다. 이메일 또는 비밀번호를 확인해주세요.",
+                            Toast.LENGTH_SHORT
+                        )
                             .show()
 
                     }
@@ -137,12 +148,16 @@ class LoginActivity : AppCompatActivity() {
 
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(this) { task ->
-                    if(task.isSuccessful){
-                      Toast.makeText(this, "회원가입에 성공했습니다. 로그인 버튼을 눌러 로그인 해주세요.", Toast.LENGTH_SHORT)
-                          .show()
-                    } else{
+                    if (task.isSuccessful) {
+                        Toast.makeText(
+                            this,
+                            "회원가입에 성공했습니다. 로그인 버튼을 눌러 로그인 해주세요.",
+                            Toast.LENGTH_SHORT
+                        )
+                            .show()
+                    } else {
                         // 2021-06-12 18:26:30.011 19535-19535/com.lilcode.aop.p3.c05.tinder D/debug: com.google.firebase.auth.FirebaseAuthWeakPasswordException: The given password is invalid. [ Password should be at least 6 characters ]
-                        Log.d("debug",task.exception.toString())
+                        Log.d("debug", task.exception.toString())
                         Toast.makeText(this, "이미 가입된 이메일 이거나 회원가입에 실패했습니다.", Toast.LENGTH_SHORT)
                             .show()
                     }
@@ -159,4 +174,19 @@ class LoginActivity : AppCompatActivity() {
         return findViewById<EditText>(R.id.passwordEditText).text.toString()
     }
 
+    private fun handleSuccessLogin() {
+        if (auth.currentUser == null) {
+            Toast.makeText(this, "Login fail.", Toast.LENGTH_SHORT)
+            return
+        }
+
+        val userId = auth.currentUser?.uid.orEmpty()
+
+        val currentUserDB = Firebase.database.reference.child("Users").child(userId)
+        val user = mutableMapOf<String, Any>()
+        user["userId"] = userId
+        currentUserDB.updateChildren(user)
+
+        finish()
+    }
 }
