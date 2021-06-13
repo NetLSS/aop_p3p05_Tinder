@@ -59,3 +59,6 @@ firebase 에서 authentication 시작하기 눌러 사용을 시작;
 
 realtime database 도 시작;
 
+https://developers.facebook.com/docs/facebook-login/android
+
+
