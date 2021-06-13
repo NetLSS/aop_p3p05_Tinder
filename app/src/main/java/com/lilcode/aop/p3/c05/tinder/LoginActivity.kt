@@ -68,6 +68,7 @@ class LoginActivity : AppCompatActivity() {
 
                     }
                 }
+
         }
     }
 
@@ -89,6 +90,7 @@ class LoginActivity : AppCompatActivity() {
                             .show()
                     }
                 }
+
         }
     }
 
