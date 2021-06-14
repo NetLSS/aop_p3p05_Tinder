@@ -2,5 +2,9 @@
     <string name="app_name">tinder</string>
     <string name="facebook_app_id">309423044180503</string>
     <string name="fb_login_protocol_scheme">fb309423044180503</string>
+    <string name="write_name">이름을 입력해주세요</string>
+    <string name="save">저장</string>
+    <string name="not_logined">로그인이 되어있지 않습니다.</string>
+    <string name="undecided">undecided</string>
 
 </resources>
