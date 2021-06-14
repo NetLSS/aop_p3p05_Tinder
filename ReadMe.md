@@ -30,8 +30,8 @@
 
 - **Firebase Authenetication** 사용하기
 
-  - Email Login
-  - Facebook Login
+  - Email Login (createUserWithEmailAndPassword...)
+  - Facebook Login (facebook developer...)
 
 - **Firebase Realtime Database** 사용하기
 
