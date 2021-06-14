@@ -7,10 +7,7 @@ import android.widget.EditText
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import com.google.firebase.auth.FirebaseAuth
-import com.google.firebase.database.DataSnapshot
-import com.google.firebase.database.DatabaseError
-import com.google.firebase.database.DatabaseReference
-import com.google.firebase.database.ValueEventListener
+import com.google.firebase.database.*
 import com.google.firebase.database.ktx.database
 import com.google.firebase.ktx.Firebase
 import com.yuyakaido.android.cardstackview.CardStackLayoutManager
@@ -41,7 +38,7 @@ class LikeActivity : AppCompatActivity(), CardStackListener {
                 }
 
                 // 유저 정보 갱신;
-
+                getUnSelectedUsers()
             }
 
             override fun onCancelled(error: DatabaseError) {
@@ -53,11 +50,60 @@ class LikeActivity : AppCompatActivity(), CardStackListener {
         initCardStacView()
     }
 
+
+
     private fun initCardStacView() {
 
         val cardStackView = findViewById<CardStackView>(R.id.cardStackView)
         cardStackView.layoutManager = CardStackLayoutManager(this)
         cardStackView.adapter = adapter //CardStackAdapter()
+    }
+
+    private fun getUnSelectedUsers() {
+
+        userDB.addChildEventListener(object: ChildEventListener{
+            override fun onChildAdded(snapshot: DataSnapshot, previousChildName: String?) {
+                if (snapshot.child("userId").value != getCurrentUserId() // 현재 유저가 내가 아니고;
+                    && snapshot.child("likedBy").child("like").hasChild(getCurrentUserId()).not() // 상대 방의 likedBy에 Like에 내가 없고;
+                    && snapshot.child("likedBy").child("disLike").hasChild(getCurrentUserId()).not()) // 상대 방의 likeBy에 disLike에 내가 없다;
+                        // 즉 내가 선택한 적이 한번도 없는 유저
+                {
+                    val userId = snapshot.child("userId").value.toString()
+                    var name = "undecided" // 처음 로그인 시에는 이름이 없을 수 있음.
+
+                    // 이름을 설정한 경우에만 가져오도록;
+                    if (snapshot.child("name").value != null){
+                        name = snapshot.child("name").value.toString()
+                    }
+
+                    cardItems.add(CardItem(userId, name))
+                    adapter.submitList(cardItems)
+                    adapter.notifyDataSetChanged()
+                }
+            }
+
+            override fun onChildChanged(snapshot: DataSnapshot, previousChildName: String?) {
+                // 상대방의 데이터가 변경되었을 때 처리하기;
+                cardItems.find {
+                    it.userId == snapshot.key
+                }?.let {
+                    it.name = snapshot.child("name").value.toString()
+                }
+
+                adapter.submitList(cardItems)
+                adapter.notifyDataSetChanged()
+            }
+
+            override fun onChildRemoved(snapshot: DataSnapshot) {
+            }
+
+            override fun onChildMoved(snapshot: DataSnapshot, previousChildName: String?) {
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+            }
+
+        })
     }
 
     private fun showNameInputPopup() {
@@ -68,9 +114,10 @@ class LikeActivity : AppCompatActivity(), CardStackListener {
             .setTitle("이름을 입력해주세요")
             .setView(editText)
             .setPositiveButton("저장") { _, _ ->
-                if (editText.text.isEmpty()) {
+                if (editText.text.isEmpty()) { // 빈 텐스트면 다시 띄우기 (무한 띄우기)
                     showNameInputPopup()
                 } else {
+                    // 입력 되었다면 원격 db에 저장;
                     saveUserName(editText.text.toString())
                 }
             }
@@ -79,8 +126,6 @@ class LikeActivity : AppCompatActivity(), CardStackListener {
     }
 
     private fun saveUserName(name: String) {
-
-
         val userId = getCurrentUserId()
 
         val currentUserDB = userDB.child(userId)
@@ -89,7 +134,10 @@ class LikeActivity : AppCompatActivity(), CardStackListener {
         user["name"] = name
         currentUserDB.updateChildren(user)
 
+        // todo 유저 정보를 가져와라;
     }
+
+
 
     private fun getCurrentUserId(): String {
         if (auth.currentUser == null) {
@@ -100,6 +148,8 @@ class LikeActivity : AppCompatActivity(), CardStackListener {
         return auth.currentUser?.uid.orEmpty()
     }
 
+
+    // <CardStackListener>
     override fun onCardDragging(direction: Direction?, ratio: Float) {
 
     }
@@ -119,5 +169,6 @@ class LikeActivity : AppCompatActivity(), CardStackListener {
 
     override fun onCardDisappeared(view: View?, position: Int) {
     }
+    // </CardStackListener>
 
 }
