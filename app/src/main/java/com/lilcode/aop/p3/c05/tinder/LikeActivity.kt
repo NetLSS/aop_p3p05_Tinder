@@ -19,6 +19,9 @@ class LikeActivity : AppCompatActivity(), CardStackListener {
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
     private lateinit var userDB: DatabaseReference
     private val adapter = CardItemAdapter()
+    private val manager by lazy {
+        CardStackLayoutManager(this, this)
+    }
     private val cardItems = mutableListOf<CardItem>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -55,7 +58,7 @@ class LikeActivity : AppCompatActivity(), CardStackListener {
     private fun initCardStacView() {
 
         val cardStackView = findViewById<CardStackView>(R.id.cardStackView)
-        cardStackView.layoutManager = CardStackLayoutManager(this)
+        cardStackView.layoutManager = manager // 여기서 초기화;
         cardStackView.adapter = adapter //CardStackAdapter()
     }
 
@@ -149,13 +152,54 @@ class LikeActivity : AppCompatActivity(), CardStackListener {
     }
 
 
+
+
+    private fun like(){
+        val card = cardItems[manager.topPosition - 1]
+        cardItems.removeFirst() // 뷰 데이터를 실제로 지울 것임;
+
+        // 상대방의 likedBy에 저장;
+        userDB.child(card.userId)
+            .child("likedBy")
+            .child("like")
+            .child(getCurrentUserId())
+            .setValue(true)
+
+        // todo 매칭이 된 시점을 봐야한다.
+        Toast.makeText(this, "${card.name}님을 Like 하셨습니다.", Toast.LENGTH_SHORT)
+            .show()
+    }
+
+    private fun disLike(){
+        val card = cardItems[manager.topPosition - 1]
+        cardItems.removeFirst() // 뷰 데이터를 실제로 지울 것임;
+
+        // 상대방의 likedBy에 저장;
+        userDB.child(card.userId)
+            .child("likedBy")
+            .child("disLike")
+            .child(getCurrentUserId())
+            .setValue(true)
+
+        Toast.makeText(this, "${card.name}님을 disLike 하셨습니다.", Toast.LENGTH_SHORT)
+            .show()
+    }
+
     // <CardStackListener>
     override fun onCardDragging(direction: Direction?, ratio: Float) {
 
     }
 
     override fun onCardSwiped(direction: Direction?) {
-        TODO("Not yet implemented")
+        when(direction){
+            Direction.Right ->{
+                like()
+            }
+            Direction.Left ->{
+                disLike()
+            }
+            else -> Unit
+        }
     }
 
     override fun onCardRewound() {
