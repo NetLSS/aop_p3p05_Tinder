@@ -1,5 +1,7 @@
 # aop-part3-chapter05 -  틴더
 
+해당 프로젝트 관련 보다 자세한 내용은 저의 [블로그 글](https://whyprogrammer.tistory.com/592)을 통해 확인할 수 있습니다.
+
 # 목차
 
 1. 인트로 (완성앱 & 구현 기능 소개)
@@ -18,11 +20,11 @@
 
 # 결과화면
 
-![1](./screenshot/1.png)
+![1](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2FdAXEDK%2Fbtq7gqTzprW%2FuiyTlVKNxK0pTIXkPVHWB0%2Fimg.png)
 
+![2](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2F3epRo%2Fbtq7ixx0Khq%2F0Al3tP7LKq3uC7aAeCSfK0%2Fimg.png)
 
-
-![2](./screenshot/2.png)
+![3](https://img1.daumcdn.net/thumb/R1280x0/?scode=mtistory2&fname=https%3A%2F%2Fblog.kakaocdn.net%2Fdn%2F83cyv%2Fbtq7iwFQsH2%2F0r4gL0cEEMQfTi4k1dnqNK%2Fimg.png)
 
 
 
